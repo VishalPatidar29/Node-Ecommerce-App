@@ -4,30 +4,52 @@ const jwt = require("jsonwebtoken");
 const { generateToken } = require('../utils/generateToken');
  
 module.exports.registerUser =   async function (req, res) {
-  try {
-    let { email, password, fullname } = req.body;
+    try {
+        let { email, password, fullname } = req.body;
 
-    let user = await userModel.findOne({email : email});
-    if(user) return res.status(401).send("User Already Have Account. Please Login !");
+        let user = await userModel.findOne({email : email});
+        if(user) return res.status(401).send("User Already Have Account. Please Login !");
 
-    bcrypt.genSalt(10, function (err, salt) {
-      bcrypt.hash(password, salt, async function (err, passwordhash) {
-        if (err) {
-          return res.send(err.message);
-        } else {
-          let user = await userModel.create({
-            email,
-            passwordhash,
-            fullname,
-          });
+        bcrypt.genSalt(10, function (err, salt) {
+        bcrypt.hash(password, salt, async function (err, passwordhash) {
 
-          let token = generateToken(user);
-          res.cookie("token", token);
-          res.send("user Created Successfully !");
-        }
-      });
-    });
-  } catch (err) {
-    console.log(err.message);
-  }
-}
+            if (err) {
+            return res.send(err.message);
+            } else {
+            let user = await userModel.create({
+                email,
+                password: passwordhash,
+                fullname,
+            });
+
+            let token = generateToken(user);
+            res.cookie("token", token);
+            res.send("user Created Successfully !");
+            }
+        });
+        });
+    } catch (err) {
+        console.log(err.message);
+    }
+};
+
+module.exports.loginUser = async function (req, res) {
+    
+    let {email, password} = req.body;
+   let user = await userModel.findOne({ email: email});
+
+   if(!user) return res.send("Email or Password incorrect");
+
+   bcrypt.compare(password, user.password, function (err, result) {
+
+   if(result){
+    let token =  generateToken(user);
+    res.cookie("token", token);
+    res.send("Login Successfully !");
+
+   }else{
+    res.send("Email or Password incorrect");
+   }
+
+   });
+};
