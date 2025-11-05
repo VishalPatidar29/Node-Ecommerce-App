@@ -35,8 +35,4 @@ router.get('/addtocart/:productid', isLoggedIn, async function (req, res){
 
 });
 
-router.get('/logout', isLoggedIn, function (req, res){
-    res.render('shop');
-});
-
 module.exports = router;

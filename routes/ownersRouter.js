@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const ownerModel = require("../models/owners-model");
 const ownersModel = require("../models/owners-model");
+const isLoggedIn = require("../middlewares/isLoggedIn");
 
 if (process.env.NODE_ENV === "development") {
   router.post("/create", async function (req, res) {
@@ -21,7 +22,7 @@ if (process.env.NODE_ENV === "development") {
   });
 }
 
-router.get("/admin", function (req, res){
+router.get("/admin",  isLoggedIn ,function (req, res){
   let success = req.flash("success");
   res.render("createproducts", {success});
 
